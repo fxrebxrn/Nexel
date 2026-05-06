@@ -199,6 +199,16 @@ Authorization: Bearer <access_token>
 
 ---
 
+### Realtime chat
+
+- Message history via HTTP cursor pagination
+- New messages delivered via WebSocket
+- JWT-protected WebSocket connection
+- Chat participant validation
+- Typing events
+
+---
+
 ## Media Files
 
 The app serves the `media` directory at:

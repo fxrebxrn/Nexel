@@ -54,7 +54,6 @@ class ChatService:
             "data": full_message
         }
     
-
     async def upload_attachments_for_message(self, message_id: int, current_user: User, files: list[UploadFile]):
         message = await self.repo.get_message_by_id(message_id)
 

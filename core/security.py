@@ -71,6 +71,30 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: An
     
     return user
 
+async def get_current_user_ws(token: str | None, db: AsyncSession):
+    if not token:
+        logger.warning("WebSocket auth failed: token not provided")
+        raise InvalidTokenError()
+
+    if token.startswith("Bearer "):
+        token = token.replace("Bearer ", "", 1)
+
+    payload = decode_token(token)
+    user_id = payload.get("user_id")
+
+    if not user_id:
+        logger.warning(f"Invalid WebSocket token, user_id not found: {user_id}")
+        raise InvalidTokenError()
+
+    repo = UserRepository(db)
+    user = await repo.get_by_id(user_id)
+
+    if not user:
+        logger.warning(f"Invalid WebSocket token, user not found: {user_id}")
+        raise InvalidTokenError()
+
+    return user
+
 async def get_current_admin(current_admin: Annotated[User, Depends(get_current_user)]):
     if current_admin.role != "admin":
         raise PermissionDeniedError()

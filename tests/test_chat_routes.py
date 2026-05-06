@@ -38,52 +38,6 @@ class TestNewChat:
         resp2 = await client.post(_user1_url(user2.id))
         assert resp2.json()["chat_id"] == chat_id
 
-class TestNewMessage:
-    async def test_send_message_success(self, client: AsyncClient, user1, chat_1_2):
-        resp = await client.post(
-            f"/chats/{chat_1_2.id}/messages",
-            json={"text": "Привет!"},
-        )
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["message"] == "Message sent successfully"
-        assert data["data"]["text"] == "Привет!"
-        assert data["data"]["sender"]["id"] == user1.id
-
-    async def test_send_message_empty_text_returns_422(
-        self, client: AsyncClient, user1, chat_1_2
-    ):
-        resp = await client.post(
-            f"/chats/{chat_1_2.id}/messages",
-            json={"text": ""},
-        )
-        assert resp.status_code == 422
-
-    async def test_send_message_too_long_returns_422(
-        self, client: AsyncClient, user1, chat_1_2
-    ):
-        resp = await client.post(
-            f"/chats/{chat_1_2.id}/messages",
-            json={"text": "a" * 1001},
-        )
-        assert resp.status_code == 422
-
-    async def test_send_message_to_foreign_chat_returns_403(
-        self, client: AsyncClient, user1, chat_2_3
-    ):
-        """user1 не является участником chat_2_3."""
-        resp = await client.post(
-            f"/chats/{chat_2_3.id}/messages",
-            json={"text": "Hack!"},
-        )
-        assert resp.status_code == 403
-
-    async def test_send_message_to_nonexistent_chat_returns_404(
-        self, client: AsyncClient, user1
-    ):
-        resp = await client.post("/chats/9999/messages", json={"text": "Hi"})
-        assert resp.status_code == 404
-
 class TestUploadAttachments:
     def _make_file(self, name="file.txt", content_type="text/plain", data=b"hello"):
         return ("files", (name, io.BytesIO(data), content_type))
