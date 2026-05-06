@@ -11,26 +11,42 @@ from services.chat_service import ChatService
 from datetime import datetime
 from services.ws_manager import manager
 from core.exceptions import InvalidTokenError, ExpiredTokenError
+import logging
 
 router = APIRouter(prefix="/chats", tags=["Chats"])
+logger = logging.getLogger(__name__)
 
 @router.websocket("/{chat_id}/ws")
-async def websocket_test(websocket: WebSocket, chat_id: int, token: str | None = Query(None), db: AsyncSession = Depends(get_db)):
+async def chat_websocket(websocket: WebSocket, chat_id: int, token: str | None = Query(None), db: AsyncSession = Depends(get_db)):
     service = ChatService(db)
     current_user = None
     connected = False
 
+    logger.info(f"WebSocket connection attempt: chat_id={chat_id}")
+
     try:
         current_user = await get_current_user_ws(token, db)
+
         await service.get_if_participant(chat_id, current_user.id)
 
         await manager.connect(chat_id, current_user.id, websocket)
         connected = True
 
+        logger.info(f"WebSocket connected: chat_id={chat_id}, user_id={current_user.id}")
+
         while True:
             data = await websocket.receive_json()
+            event_type = data.get("type")
 
-            if data.get("type") == "typing":
+            if event_type == "ping":
+                await websocket.send_json({
+                    "type": "pong",
+                    "chat_id": chat_id
+                })
+
+            elif event_type == "typing":
+                logger.debug(f"Typing event: chat_id={chat_id}, user_id={current_user.id}")
+
                 await manager.send_to_chat(
                     chat_id,
                     {
@@ -41,18 +57,31 @@ async def websocket_test(websocket: WebSocket, chat_id: int, token: str | None =
                     exclude_user_id=current_user.id
                 )
 
+            else:
+                logger.warning(f"Unknown WebSocket event: chat_id={chat_id}, user_id={current_user.id}, event_type={event_type}")
+
+                await websocket.send_json({
+                    "type": "error",
+                    "message": "Unknown event type"
+                })
+
     except WebSocketDisconnect:
         if connected and current_user is not None:
             manager.disconnect(chat_id, current_user.id, websocket)
 
+            logger.info(f"WebSocket disconnected: chat_id={chat_id}, user_id={current_user.id}")
+
     except (InvalidTokenError, ExpiredTokenError):
-        if connected and current_user is not None:
-            manager.disconnect(chat_id, current_user.id, websocket)
+        logger.warning(f"WebSocket auth failed: chat_id={chat_id}")
+
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
 
     except Exception:
         if connected and current_user is not None:
             manager.disconnect(chat_id, current_user.id, websocket)
+
+        logger.exception(f"Unexpected WebSocket error: chat_id={chat_id}, user_id={current_user.id if current_user else None}")
+
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
 
 @router.post("/{chat_id}/messages", response_model=WithMessageResponse)
