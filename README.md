@@ -1,5 +1,5 @@
-![Tests](https://github.com/fxrebxrn/social-platform-fastapi-backend/actions/workflows/tests.yml/badge.svg)
-![Docker Build](https://github.com/fxrebxrn/social-platform-fastapi-backend/actions/workflows/docker.yml/badge.svg)
+![Tests](https://github.com/fxrebxrn/Nexel/actions/workflows/tests.yml/badge.svg)
+![Docker Build](https://github.com/fxrebxrn/Nexel/actions/workflows/docker.yml/badge.svg)
 
 # Social Platform API (FastAPI)
 
