@@ -1,7 +1,11 @@
 services: 
   app:
-    build: .
-    container_name: social-api-app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nexel-api-app
+    env_file:
+      - ./backend/.env
     ports:
       - "8000:8000"
     environment:
@@ -24,7 +28,7 @@ services:
 
   db:
     image: postgres:16-alpine
-    container_name: social-api-db
+    container_name: nexel-api-db
     ports:
       - "5434:5432"
     environment:
@@ -41,7 +45,7 @@ services:
 
   redis:
     image: redis:7
-    container_name: social-api-redis
+    container_name: nexel-api-redis
     ports:
       - "6379:6379"
     healthcheck:
