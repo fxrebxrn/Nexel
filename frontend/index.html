@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexel Chat</title>
+    <link rel="stylesheet" href="style.css?v=7">
+</head>
+<body>
+    <div class="auth-screen hidden" id="auth-screen">
+        <div class="auth-card">
+            <div class="auth-logo">Nexel</div>
+
+            <div class="auth-tabs">
+                <div class="slider"></div>
+                <button class="auth-tab active" id="show-login-button">
+                    Login
+                </button>
+
+                <button class="auth-tab" id="show-register-button">
+                    Register
+                </button>
+            </div>
+
+            <div class="auth-form" id="login-form">
+                <input 
+                    id="login-email-input"
+                    class="auth-input"
+                    type="email"
+                    placeholder="Email"
+                    autocomplete="username"
+                >
+
+                <input 
+                    id="login-password-input"
+                    class="auth-input"
+                    type="password"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                >
+
+                <button id="login-button" class="auth-button primary">
+                    Login
+                </button>
+            </div>
+
+            <div class="auth-form hidden" id="register-form">
+                <input 
+                    id="register-name-input"
+                    class="auth-input"
+                    type="text"
+                    placeholder="Name"
+                    autocomplete="name"
+                >
+
+                <input 
+                    id="register-email-input"
+                    class="auth-input"
+                    type="email"
+                    placeholder="Email"
+                    autocomplete="email"
+                >
+
+                <input 
+                    id="register-password-input"
+                    class="auth-input"
+                    type="password"
+                    placeholder="Password"
+                    autocomplete="new-password"
+                >
+
+                <button id="register-button" class="auth-button primary">
+                    Register
+                </button>
+            </div>
+
+            <p id="auth-status" class="auth-status"></p>
+        </div>
+    </div>
+
+    <div class="app hidden" id="chat-app">
+        <header class="app-header">
+            <div class="logo">Nexel</div>
+
+            <div class="header-actions">
+                <button class="my-id-box" id="my-id-box">
+                    <span class="my-id-label">Your ID:</span>
+                    <span class="my-id-value" id="my-user-id">—</span>
+                </button>
+
+                <button class="logout-button">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <main class="chat-layout">
+            <aside class="sidebar">
+                <button class="new-chat-button">
+                    <span>+</span>
+                </button>
+
+                <div class="chat-list" id="chat-list">
+                    <div class="chat-list-loading">Loading...</div>
+                </div>
+            </aside>
+
+            <section class="chat-panel">
+                <div class="chat-header hidden" id="chat-header">
+                    <button class="mobile-back-button" id="mobile-back-button" type="button">
+                        ←
+                    </button>
+                    <div class="chat-header-avatar" id="chat-header-avatar">
+                        ?
+                    </div>
+
+                    <div class="chat-header-info">
+                        <div class="chat-header-name" id="chat-header-name">
+                            Select chat
+                        </div>
+
+                        <div class="chat-header-subtitle" id="chat-header-subtitle">
+                            No chat selected
+                        </div>
+                        <div class="chat-header-status hidden" id="chat-header-status">
+                            Offline
+                        </div>
+                    </div>
+                </div>
+                <div class="messages-list" id="messages-list">
+                    <div class="message-list-empty">
+                        Select a chat to start messaging
+                    </div>
+                </div>
+                <div class="toast-container" id="toast-container"></div>
+
+                <form class="message-form hidden" id="message-form" autocomplete="off">
+                    <textarea
+                        id="message-input"
+                        class="message-input"
+                        placeholder="Type message..."
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="sentences"
+                        spellcheck="false"
+                        enterkeyhint="send"
+                        inputmode="text"
+                        name="nexel_chat_message_field"
+                        data-lpignore="true"
+                        data-form-type="other"
+                    ></textarea>
+
+                    <button class="send-button" id="send-button" type="submit">
+                        ➤
+                    </button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal-overlay hidden" id="new-chat-modal">
+    <div class="modal-card">
+        <h2 class="modal-title">Create new chat</h2>
+        <p class="modal-subtitle">Enter user ID to start conversation</p>
+
+        <input 
+            id="new-chat-user-input"
+            class="modal-input"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            placeholder="User ID"
+            autocomplete="one-time-code"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            name="nexel_chat_target_user_id"
+            data-lpignore="true"
+            data-form-type="other"
+        >
+
+        <p id="new-chat-status" class="modal-status"></p>
+
+        <div class="modal-actions">
+            <button class="modal-button secondary" id="cancel-new-chat-button">
+                Cancel
+            </button>
+
+            <button class="modal-button primary" id="create-new-chat-button">
+                Create
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/state.js"></script>
+<script src="js/dom.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/mobile.js"></script>
+<script src="js/chats.js"></script>
+<script src="js/messages.js"></script>
+<script src="js/socket.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -9,6 +9,7 @@ from routers.chats import router as chats_router
 import logging
 from core.exceptions import AppError
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
 logger = logging.getLogger("app")
 logger.setLevel(logging.INFO)
@@ -31,6 +32,14 @@ if not os.path.exists("media"):
     os.makedirs("media")
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 @app.exception_handler(AppError)
 async def app_error_handler(request: Request, exc: AppError):
