@@ -135,6 +135,7 @@ class UserService:
         profile_data = {
             "id": user.id,
             "name": user.name,
+            "email": user.email,
             "role": user.role,
             "avatar_url": user.avatar_url,
             "followers_count": await self.repo.get_followers_count(user_id),

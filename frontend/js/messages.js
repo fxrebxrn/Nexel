@@ -1,28 +1,51 @@
-// messages.js
 function updateChatPreviewFromMessage(message) {
-    if (!message) return;
+    if (!message) {
+        return;
+    }
 
     const chatId = message.chat_id;
-    const chatButton = document.querySelector(`.chat-item[data-chat-id="${chatId}"]`);
 
-    if (!chatButton) return;
+    const chatButton = document.querySelector(
+        `.chat-item[data-chat-id="${chatId}"]`
+    );
+
+    if (!chatButton) {
+        return;
+    }
 
     const previewElement = chatButton.querySelector(".chat-preview");
 
     if (previewElement) {
-        const currentUserId = getCurrentUserId();
+        const preview = getChatPreviewParts(message);
 
-        const senderId = message.sender?.id || message.sender_id;
-        const isMine = String(senderId) === String(currentUserId);
+        previewElement.innerHTML = "";
 
-        previewElement.innerHTML = `
-            <span class="prefix">${isMine ? "You: " : ""}</span>${message.text || "New message"}
-        `;
+        if (preview.prefix) {
+            const prefixElement = document.createElement("span");
+            prefixElement.className = "prefix";
+            prefixElement.textContent = preview.prefix;
+
+            previewElement.appendChild(prefixElement);
+        }
+
+        const textNode = document.createTextNode(preview.text);
+        previewElement.appendChild(textNode);
     }
 
-    const chatList = document.getElementById('chat-list');
-    if (chatList) {
-        chatList.prepend(chatButton);
+    chatList.prepend(chatButton);
+
+    const chat = currentChats.find((item) => {
+        return Number(item.chat_id) === Number(chatId);
+    });
+
+    if (chat) {
+        chat.last_message = message;
+
+        currentChats = currentChats.filter((item) => {
+            return Number(item.chat_id) !== Number(chatId);
+        });
+
+        currentChats.unshift(chat);
     }
 }
 
@@ -153,6 +176,21 @@ function renderMessages(messages, scrollToBottom = true) {
 
         const initials = getInitials(senderName);
         const timeString = formatMessageTime(msg.created_at);
+        const currentMessageDate = new Date(msg.created_at);
+        const previousMessage = messages[index - 1];
+        const previousMessageDate = previousMessage ? new Date(previousMessage.created_at) : null;
+
+        const shouldShowDateSeparator =
+            !previousMessage ||
+            !isSameDay(currentMessageDate, previousMessageDate);
+
+        if (shouldShowDateSeparator) {
+            const label = getDateSeparatorLabel(msg.created_at);
+
+            if (label) {
+                messagesList.appendChild(createDateSeparator(label));
+            }
+        }
 
         messageRow.innerHTML = `
             ${!isMine ? `<div class="avatar">${initials}</div>` : ""}

@@ -1,25 +1,36 @@
-// auth.js
 function logoutUser() {
-    currentChatId = null;
-    currentMessages.length = 0;
-
-    if (chatHeader) {
-        chatHeader.classList.add("hidden");
-    }
-
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("selected_chat_id");
-
-    showAuthScreen();
     closeChatSocket(false);
     closeNewChatModal();
 
+    currentChatId = null;
+    currentMessages = [];
+    currentChats = [];
+    chatsById.clear();
+    messageDrafts.clear();
+
+    if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = null;
+    }
+
+    pendingMessageFallbackTimeouts.forEach((timeoutId) => {
+        clearTimeout(timeoutId);
+    });
+    pendingMessageFallbackTimeouts.clear();
+
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("selected_chat_id");
+    localStorage.removeItem("user_id");
+
     chatHeader.classList.add("hidden");
-    currentChatId = null;
+    messageForm.classList.add("hidden");
+
+    messagesList.innerHTML = `
+        <div class="message-list-empty">
+            Select a chat to start messaging
+        </div>
+    `;
 
     showAuthScreen();
 }
@@ -30,13 +41,6 @@ async function login() {
 
     if (!email || !password) {
         setAuthStatus("Enter your email and password");
-        return;
-    }
-
-    if (email === "test" && password === "test") {
-        localStorage.setItem("access_token", "test");
-        localStorage.setItem("refresh_token", "test");
-        showChatApp();
         return;
     }
 
@@ -76,8 +80,11 @@ async function login() {
         }
 
         setAuthStatus("");
+        await loadCurrentUser();
         await loadChats();
+
         showChatApp();
+
         await openSavedOrFirstChatOnlyDesktop();
 
     } catch (error) {

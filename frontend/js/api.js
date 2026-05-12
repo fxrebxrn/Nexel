@@ -1,4 +1,3 @@
-// api.js
 async function authFetch(path, options = {}, canRetry = true) {
     const token = getAccessToken();
 

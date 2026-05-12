@@ -1,4 +1,3 @@
-// ui.js
 function showToast(message, type = "info") {
     if (!toastContainer) {
         return;
@@ -18,9 +17,6 @@ function showToast(message, type = "info") {
 function showAuthScreen() {
     chatApp.classList.add("hidden");
     authScreen.classList.remove("hidden");
-    if (myUserIdElement) {
-        myUserIdElement.textContent = "—";
-    }
 }
 
 function setAuthStatus(message) {
@@ -30,18 +26,7 @@ function setAuthStatus(message) {
 function showChatApp() {
     authScreen.classList.add("hidden");
     chatApp.classList.remove("hidden");
-    renderMyUserId();
-}
-
-function renderMyUserId() {
-    const userId = getCurrentUserId();
-
-    if (!userId) {
-        myUserIdElement.textContent = "—";
-        return;
-    }
-
-    myUserIdElement.textContent = String(userId);
+    renderAccountInfo();
 }
 
 function showLoginForm() {
@@ -64,28 +49,6 @@ function showRegisterForm() {
     showLoginButton.classList.remove("active");
 
     setAuthStatus("");
-}
-
-async function copyTextToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        return;
-    }
-
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.left = "-9999px";
-    textarea.style.top = "-9999px";
-
-    document.body.appendChild(textarea);
-    textarea.select();
-    textarea.setSelectionRange(0, textarea.value.length);
-
-    document.execCommand("copy");
-
-    document.body.removeChild(textarea);
 }
 
 function escapeHTML(value) {
@@ -141,4 +104,167 @@ function getInitials(name) {
         .join("")
         .slice(0, 2)
         .toUpperCase();
+}
+
+function renderAccountInfo() {
+    const userId = getCurrentUserId();
+
+    if (!accountAvatar || !accountUserId) {
+        return;
+    }
+
+    if (!currentUser) {
+        const fallbackId = userId || "—";
+
+        accountAvatar.textContent = userId ? String(userId).slice(0, 2) : "U";
+        accountUserId.textContent = String(fallbackId);
+
+        if (accountProfileAvatar) {
+            accountProfileAvatar.textContent = "U";
+        }
+
+        if (accountProfileName) {
+            accountProfileName.textContent = "User";
+        }
+
+        if (accountProfileEmail) {
+            accountProfileEmail.textContent = `ID: ${fallbackId}`;
+        }
+
+        return;
+    }
+
+    const name = currentUser.name || "User";
+    const id = currentUser.id || userId || "—";
+
+    accountAvatar.textContent = getInitials(name);
+    accountUserId.textContent = String(id);
+
+    if (accountProfileAvatar) {
+        accountProfileAvatar.textContent = getInitials(name);
+    }
+
+    if (accountProfileName) {
+        accountProfileName.textContent = name;
+    }
+
+    if (accountProfileEmail) {
+        accountProfileEmail.textContent = `ID: ${id}`;
+    }
+}
+
+async function copyTextToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "-9999px";
+    textarea.style.opacity = "0";
+
+    document.body.appendChild(textarea);
+
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+
+    const copied = document.execCommand("copy");
+
+    document.body.removeChild(textarea);
+
+    if (!copied) {
+        throw new Error("Copy command failed");
+    }
+}
+
+function openNewChatModal() {
+    newChatStatus.textContent = "";
+    newChatUserInput.value = "";
+
+    userSearchResults.innerHTML = `
+        <div class="user-search-empty">
+            Type at least 3 characters
+        </div>
+    `;
+
+    newChatModal.classList.remove("hidden");
+
+    setTimeout(() => {
+        newChatUserInput.focus();
+    }, 50);
+}
+
+function isSameDay(dateA, dateB) {
+    if (!dateA || !dateB) {
+        return false;
+    }
+
+    return (
+        dateA.getFullYear() === dateB.getFullYear() &&
+        dateA.getMonth() === dateB.getMonth() &&
+        dateA.getDate() === dateB.getDate()
+    );
+}
+
+function getDateSeparatorLabel(value) {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    const today = new Date();
+
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (isSameDay(date, today)) {
+        return "Today";
+    }
+
+    if (isSameDay(date, yesterday)) {
+        return "Yesterday";
+    }
+
+    return date.toLocaleDateString([], {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+function createDateSeparator(label) {
+    const separator = document.createElement("div");
+    separator.className = "date-separator";
+    separator.textContent = label;
+
+    return separator;
+}
+
+function openPartnerProfileModal() {
+    const partner = getCurrentChatPartner();
+
+    if (!partner) {
+        showToast("Partner not found", "error");
+        return;
+    }
+
+    const partnerName = partner.name || "Unknown user";
+    const partnerId = partner.id;
+
+    partnerProfileAvatar.textContent = getInitials(partnerName);
+    partnerProfileName.textContent = partnerName;
+    partnerProfileId.textContent = partnerId ? String(partnerId) : "—";
+
+    partnerProfileModal.classList.remove("hidden");
+}
+
+function closePartnerProfileModal() {
+    partnerProfileModal.classList.add("hidden");
 }

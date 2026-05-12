@@ -18,6 +18,9 @@ let shouldReconnectSocket = true;
 let reconnectTimeout = null;
 let reconnectAttempts = 0;
 let pendingMessageFallbackTimeouts = new Map();
+let userSearchTimeout = null;
+let isCreatingChat = false;
+let currentUser = null;
 
 function getAccessToken() {
     return localStorage.getItem("access_token");
@@ -40,4 +43,12 @@ function getCurrentUserId() {
         console.error("Failed to parse token:", error);
         return null;
     }
+}
+
+function debounceUserSearch(callback) {
+    if (userSearchTimeout) {
+        clearTimeout(userSearchTimeout);
+    }
+
+    userSearchTimeout = setTimeout(callback, 350);
 }

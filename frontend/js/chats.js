@@ -1,4 +1,3 @@
-// chats.js
 async function markChatAsRead(chatId) {
     const response = await authFetch(`/chats/${chatId}/read`, {
         method: "PATCH"
@@ -52,6 +51,28 @@ function updateChatUnreadBadge(chatId, unreadCount) {
     badge.textContent = count > 99 ? "99+" : String(count);
 }
 
+function getMessageSenderId(message) {
+    return message?.sender?.id || message?.sender_id || null;
+}
+
+function getChatPreviewParts(message) {
+    if (!message) {
+        return {
+            prefix: "",
+            text: "No messages yet"
+        };
+    }
+
+    const currentUserId = getCurrentUserId();
+    const senderId = getMessageSenderId(message);
+    const isMine = Number(senderId) === Number(currentUserId);
+
+    return {
+        prefix: isMine ? "You: " : "",
+        text: message.text || "New message"
+    };
+}
+
 function renderChatHeader(chatId) {
     const chat = chatsById.get(Number(chatId));
 
@@ -95,6 +116,20 @@ async function openSavedOrFirstChat() {
             return;
         }
     }
+
+    const firstChatButton = document.querySelector(".chat-item");
+
+    if (!firstChatButton) {
+        return;
+    }
+
+    const firstChatId = firstChatButton.dataset.chatId;
+
+    if (!firstChatId) {
+        return;
+    }
+
+    await openChat(Number(firstChatId), firstChatButton);
 }
 
 async function openSavedOrFirstChatOnlyDesktop() {
@@ -116,6 +151,15 @@ function openNewChatModal() {
 
 function closeNewChatModal() {
     newChatModal.classList.add("hidden");
+
+    newChatUserInput.value = "";
+    newChatStatus.textContent = "";
+
+    userSearchResults.innerHTML = "";
+    if (userSearchTimeout) {
+        clearTimeout(userSearchTimeout);
+        userSearchTimeout = null;
+    }
 }
 
 async function loadMoreChats() {
@@ -201,11 +245,7 @@ function renderChats(chats) {
         }
 
         const partnerName = chat.partner?.name || "Unknown user";
-        const lastMessage = chat.last_message;
-        const lastMessageText = chat.last_message?.text || "No messages yet";
-        const currentUserId = getCurrentUserId();
-        const isMine = lastMessage && String(lastMessage.sender.id) === String(currentUserId);
-
+        const preview = getChatPreviewParts(chat.last_message);
         const unreadCount = Number(chat.unread_count || 0);
 
         chatButton.innerHTML = `
@@ -215,7 +255,11 @@ function renderChats(chats) {
 
             <div class="chat-info">
                 <div class="chat-name">${escapeHTML(partnerName)}</div>
-                <div class="chat-preview">${escapeHTML(lastMessageText)}</div>
+
+                <div class="chat-preview">
+                    ${preview.prefix ? `<span class="prefix">${preview.prefix}</span>` : ""}
+                    ${escapeHTML(preview.text)}
+                </div>
             </div>
 
             <div class="chat-unread-badge ${unreadCount > 0 ? "" : "hidden"}">
@@ -289,16 +333,14 @@ async function openChat(chatId, chatButton) {
 }
 
 async function createChat(userId) {
-    const token = getAccessToken();
-
-    if (!token) {
-        showAuthScreen();
+    if (isCreatingChat) {
         return;
     }
 
-    try {
-        newChatStatus.textContent = "Creating chat...";
+    isCreatingChat = true;
+    newChatStatus.textContent = "Creating chat...";
 
+    try {
         const response = await authFetch(`/chats/${userId}`, {
             method: "POST"
         });
@@ -309,9 +351,11 @@ async function createChat(userId) {
 
         const data = await response.json();
 
+        console.log("Create chat response:", data);
 
         if (!response.ok) {
             newChatStatus.textContent = data.detail || "Failed to create chat";
+            showToast(data.detail || "Failed to create chat", "error");
             return;
         }
 
@@ -327,8 +371,28 @@ async function createChat(userId) {
             await openChat(data.chat_id, createdChatButton);
         }
 
+        showToast("Chat opened", "success");
+
     } catch (error) {
         console.error("Create chat error:", error);
         newChatStatus.textContent = "Failed to connect to server";
+        showToast("Failed to connect to server", "error");
+
+    } finally {
+        isCreatingChat = false;
     }
+}
+
+function getCurrentChatPartner() {
+    if (!currentChatId) {
+        return null;
+    }
+
+    const chat = chatsById.get(Number(currentChatId));
+
+    if (!chat || !chat.partner) {
+        return null;
+    }
+
+    return chat.partner;
 }

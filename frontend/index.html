@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexel Chat</title>
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
     <div class="auth-screen hidden" id="auth-screen">
@@ -83,9 +83,9 @@
             <div class="logo">Nexel</div>
 
             <div class="header-actions">
-                <button class="my-id-box" id="my-id-box">
-                    <span class="my-id-label">Your ID:</span>
-                    <span class="my-id-value" id="my-user-id">—</span>
+                <button class="account-button" id="account-button" type="button">
+                    <span class="account-avatar" id="account-avatar">U</span>
+                    <span class="account-text">Account</span>
                 </button>
 
                 <button class="logout-button">
@@ -159,50 +159,122 @@
     </div>
 
     <div class="modal-overlay hidden" id="new-chat-modal">
-    <div class="modal-card">
-        <h2 class="modal-title">Create new chat</h2>
-        <p class="modal-subtitle">Enter user ID to start conversation</p>
+        <div class="modal-card">
+            <h2 class="modal-title">Create new chat</h2>
+            <p class="modal-subtitle">Search user by name</p>
 
-        <input 
-            id="new-chat-user-input"
-            class="modal-input"
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            placeholder="User ID"
-            autocomplete="one-time-code"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-            name="nexel_chat_target_user_id"
-            data-lpignore="true"
-            data-form-type="other"
-        >
+            <input 
+                id="new-chat-user-input"
+                class="modal-input"
+                type="text"
+                placeholder="Search by name"
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck="false"
+                name="nexel_user_search"
+            >
 
-        <p id="new-chat-status" class="modal-status"></p>
+            <p id="new-chat-status" class="modal-status"></p>
 
-        <div class="modal-actions">
-            <button class="modal-button secondary" id="cancel-new-chat-button">
-                Cancel
-            </button>
+            <div class="user-search-results" id="user-search-results"></div>
 
-            <button class="modal-button primary" id="create-new-chat-button">
-                Create
-            </button>
+            <div class="modal-actions">
+                <button class="modal-button secondary" id="cancel-new-chat-button">
+                    Cancel
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="js/config.js"></script>
-<script src="js/state.js"></script>
-<script src="js/dom.js"></script>
-<script src="js/api.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/mobile.js"></script>
-<script src="js/chats.js"></script>
-<script src="js/messages.js"></script>
-<script src="js/socket.js"></script>
-<script src="js/main.js"></script>
+    <div class="modal-overlay hidden" id="account-modal">
+        <div class="modal-card account-card">
+            <h2 class="modal-title">Account</h2>
+            <p class="modal-subtitle">Your Nexel account info</p>
+
+            <div class="account-profile-block">
+                <div class="account-profile-avatar" id="account-profile-avatar">
+                    U
+                </div>
+
+                <div class="account-profile-info">
+                    <div class="account-profile-name" id="account-profile-name">
+                        User
+                    </div>
+
+                    <div class="account-profile-email" id="account-profile-email">
+                        ID: <span id="account-user-id">-</span>
+                    </div>
+                </div>
+            </div>
+
+           <div class="profile-actions">
+                <button class="modal-button secondary" id="copy-account-id-button" type="button">
+                    Copy User ID
+                </button>
+
+                <button class="modal-button secondary" id="open-profile-button" type="button">
+                    Open profile
+                </button>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-button secondary" id="close-account-modal-button" type="button">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="partner-profile-modal">
+        <div class="modal-card account-card">
+            <h2 class="modal-title">Profile</h2>
+            <p class="modal-subtitle">Chat partner info</p>
+
+            <div class="account-profile-block">
+                <div class="account-profile-avatar" id="partner-profile-avatar">
+                    U
+                </div>
+
+                <div class="account-profile-info">
+                    <div class="account-profile-name" id="partner-profile-name">
+                        User
+                    </div>
+
+                    <div class="account-profile-email">
+                        ID: <span id="partner-profile-id">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="modal-button secondary" id="copy-partner-id-button" type="button">
+                    Copy User ID
+                </button>
+
+                <button class="modal-button secondary" id="open-partner-profile-button" type="button">
+                    Open profile
+                </button>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-button secondary" id="close-partner-profile-button" type="button">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script src="js/config.js?v=17"></script>
+<script src="js/state.js?v=17"></script>
+<script src="js/dom.js?v=17"></script>
+<script src="js/api.js?v=17"></script>
+<script src="js/auth.js?v=17"></script>
+<script src="js/ui.js?v=17"></script>
+<script src="js/mobile.js?v=17"></script>
+<script src="js/chats.js?v=17"></script>
+<script src="js/messages.js?v=17"></script>
+<script src="js/socket.js?v=17"></script>
+<script src="js/users.js?v=17"></script>
+<script src="js/main.js?v=17"></script>
 </body>
 </html>

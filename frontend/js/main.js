@@ -1,4 +1,3 @@
-// main.js
 showLoginButton.addEventListener("click", () => {
     showLoginForm();
 });
@@ -19,6 +18,21 @@ logoutButton.addEventListener("click", () => {
     logoutUser();
 });
 
+accountButton.addEventListener("click", () => {
+    renderAccountInfo();
+    accountModal.classList.remove("hidden");
+});
+
+closeAccountModalButton.addEventListener("click", () => {
+    accountModal.classList.add("hidden");
+});
+
+accountModal.addEventListener("click", (event) => {
+    if (event.target === accountModal) {
+        accountModal.classList.add("hidden");
+    }
+});
+
 newChatButton.addEventListener("click", () => {
     openNewChatModal();
 });
@@ -31,17 +45,6 @@ newChatModal.addEventListener("click", (event) => {
     if (event.target === newChatModal) {
         closeNewChatModal();
     }
-});
-
-createNewChatButton.addEventListener("click", async () => {
-    const userId = Number(newChatUserInput.value.trim());
-
-    if (!userId) {
-        newChatStatus.textContent = "Enter user ID";
-        return;
-    }
-
-    await createChat(userId);
 });
 
 messageForm.addEventListener("submit", async (event) => {
@@ -60,7 +63,6 @@ messageForm.addEventListener("submit", async (event) => {
 
     await sendMessage(currentChatId, text);
 
-    messageInput.value = "";
 });
 
 sendButton.addEventListener("touchstart", (event) => {
@@ -92,11 +94,6 @@ chatList.addEventListener("scroll", async () => {
 });
 
 messageInput.addEventListener("input", () => {
-    messageInput.style.height = "40px";
-
-    const newHeight = Math.min(messageInput.scrollHeight, 110);
-    messageInput.style.height = `${newHeight}px`;
-
     resizeMessageInput();
     saveCurrentMessageDraft();
 
@@ -160,48 +157,143 @@ messageInput.addEventListener("keydown", (event) => {
     messageForm.requestSubmit();
 });
 
-myIdBox.addEventListener("click", async () => {
-    const userId = getCurrentUserId();
-
-    if (!userId) {
-        renderMyUserId();
-        return;
-    }
-
-    try {
-        await copyTextToClipboard(String(userId));
-
-        if (copyIdTimeout) {
-            clearTimeout(copyIdTimeout);
-            copyIdTimeout = null;
-        }
-
-        myUserIdElement.textContent = "Copied!";
-        myIdBox.classList.add("copied");
-
-        copyIdTimeout = setTimeout(() => {
-            renderMyUserId();
-            myIdBox.classList.remove("copied");
-            copyIdTimeout = null;
-        }, 1500);
-
-    } catch (error) {
-        console.error("Failed to copy user ID:", error);
-    }
-});
-
 window.addEventListener("resize", () => {
     if (!isMobileLayout()) {
         chatApp.classList.remove("mobile-chat-open");
     }
 });
 
+newChatUserInput.addEventListener("input", () => {
+    const query = newChatUserInput.value.trim();
+
+    newChatStatus.textContent = "";
+
+    if (query.length < 3) {
+        userSearchResults.innerHTML = `
+            <div class="user-search-empty">
+                Type at least 3 characters
+            </div>
+        `;
+        return;
+    }
+
+    debounceUserSearch(async () => {
+        userSearchResults.innerHTML = `
+            <div class="user-search-empty">
+                Searching...
+            </div>
+        `;
+
+        const users = await searchUsers(query);
+        renderUserSearchResults(users);
+    });
+});
+
+if (copyAccountIdButton) {
+    copyAccountIdButton.addEventListener("click", async () => {
+        const userId = getCurrentUserId();
+
+        if (!userId) {
+            showToast("User ID not found", "error");
+            return;
+        }
+
+        try {
+            await copyTextToClipboard(String(userId));
+
+            if (copyIdTimeout) {
+                clearTimeout(copyIdTimeout);
+                copyIdTimeout = null;
+            }
+
+            copyAccountIdButton.textContent = "Copied!";
+
+            copyIdTimeout = setTimeout(() => {
+                copyAccountIdButton.textContent = "Copy User ID";
+                copyIdTimeout = null;
+            }, 1500);
+
+        } catch (error) {
+            console.error("Failed to copy user ID:", error);
+            showToast("Failed to copy ID", "error");
+        }
+    });
+}
+
+if (openProfileButton) {
+    openProfileButton.addEventListener("click", () => {
+        showToast("Profile page will be added later", "warning");
+    });
+}
+
+if (chatHeader) {
+    chatHeader.addEventListener("click", (event) => {
+        if (event.target.closest(".mobile-back-button")) {
+            return;
+        }
+
+        if (!currentChatId) {
+            return;
+        }
+
+        openPartnerProfileModal();
+    });
+}
+
+if (closePartnerProfileButton) {
+    closePartnerProfileButton.addEventListener("click", () => {
+        closePartnerProfileModal();
+    });
+}
+
+if (partnerProfileModal) {
+    partnerProfileModal.addEventListener("click", (event) => {
+        if (event.target === partnerProfileModal) {
+            closePartnerProfileModal();
+        }
+    });
+}
+
+if (copyPartnerIdButton) {
+    copyPartnerIdButton.addEventListener("click", async () => {
+        const partner = getCurrentChatPartner();
+
+        if (!partner || !partner.id) {
+            showToast("User ID not found", "error");
+            return;
+        }
+
+        try {
+            await copyTextToClipboard(String(partner.id));
+
+            copyPartnerIdButton.textContent = "Copied!";
+
+            setTimeout(() => {
+                copyPartnerIdButton.textContent = "Copy User ID";
+            }, 1500);
+
+        } catch (error) {
+            console.error("Failed to copy partner ID:", error);
+            showToast("Failed to copy ID", "error");
+        }
+    });
+}
+
+if (openPartnerProfileButton) {
+    openPartnerProfileButton.addEventListener("click", () => {
+        showToast("Profile page will be added later", "warning");
+    });
+}
+
 async function initApp() {
     const savedToken = localStorage.getItem("access_token");
 
     if (savedToken) {
+        await loadCurrentUser();
         await loadChats();
+
         showChatApp();
+
         await openSavedOrFirstChatOnlyDesktop();
     } else {
         showAuthScreen();

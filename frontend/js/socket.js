@@ -1,44 +1,3 @@
-// socket.js
-async function refreshAccessToken() {
-    const refreshToken = localStorage.getItem("refresh_token");
-
-    if (!refreshToken) {
-        return false;
-    }
-
-    try {
-        const response = await fetch(`${API_URL}/auth/refresh`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                refresh_token: refreshToken
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error("Refresh token error:", data);
-            return false;
-        }
-
-        if (data.access_token) {
-            localStorage.setItem("access_token", data.access_token);
-        }
-
-        if (data.refresh_token) {
-            localStorage.setItem("refresh_token", data.refresh_token);
-        }
-
-        return true;
-
-    } catch (error) {
-        console.error("Refresh token error:", error);
-        return false;
-    }
-}
 function setSocketStatus(status) {
     if (!chatHeaderStatus) {
         return;
@@ -89,14 +48,14 @@ function scheduleMessageFallback(chatId, messageId) {
 }
 
 function appendMessageFromSocket(message) {
-    if (pendingMessageFallbackTimeouts.has(Number(message.id))) {
-        clearTimeout(pendingMessageFallbackTimeouts.get(Number(message.id)));
-        pendingMessageFallbackTimeouts.delete(Number(message.id));
-    }
-
     if (!message) {
         console.warn("No message payload, cannot append");
         return;
+    }
+
+    if (pendingMessageFallbackTimeouts.has(Number(message.id))) {
+        clearTimeout(pendingMessageFallbackTimeouts.get(Number(message.id)));
+        pendingMessageFallbackTimeouts.delete(Number(message.id));
     }
 
     if (Number(message.chat_id) !== Number(currentChatId)) {

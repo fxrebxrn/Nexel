@@ -1,4 +1,3 @@
-// dom.js
 const authScreen = document.getElementById("auth-screen");
 const chatApp = document.getElementById("chat-app");
 
@@ -37,7 +36,29 @@ const toastContainer = document.getElementById("toast-container");
 
 const chatHeaderStatus = document.getElementById("chat-header-status");
 
-const myIdBox = document.getElementById("my-id-box");
-const myUserIdElement = document.getElementById("my-user-id");
-
 const mobileBackButton = document.getElementById("mobile-back-button");
+
+const accountButton = document.getElementById("account-button");
+const accountAvatar = document.getElementById("account-avatar");
+
+const accountModal = document.getElementById("account-modal");
+const accountProfileAvatar = document.getElementById("account-profile-avatar");
+const accountProfileName = document.getElementById("account-profile-name");
+const accountProfileEmail = document.getElementById("account-profile-email");
+const accountUserId = document.getElementById("account-user-id");
+
+const copyAccountIdButton = document.getElementById("copy-account-id-button");
+const closeAccountModalButton = document.getElementById("close-account-modal-button");
+
+const openProfileButton = document.getElementById("open-profile-button");
+
+const userSearchResults = document.getElementById("user-search-results");
+
+const partnerProfileModal = document.getElementById("partner-profile-modal");
+const partnerProfileAvatar = document.getElementById("partner-profile-avatar");
+const partnerProfileName = document.getElementById("partner-profile-name");
+const partnerProfileId = document.getElementById("partner-profile-id");
+
+const copyPartnerIdButton = document.getElementById("copy-partner-id-button");
+const openPartnerProfileButton = document.getElementById("open-partner-profile-button");
+const closePartnerProfileButton = document.getElementById("close-partner-profile-button");

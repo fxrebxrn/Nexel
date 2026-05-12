@@ -13,7 +13,6 @@ a,
 input,
 textarea,
 .chat-item,
-.my-id-box,
 .new-chat-button,
 .mobile-back-button,
 .send-button,
@@ -24,7 +23,6 @@ textarea,
 
 button,
 .chat-item,
-.my-id-box,
 .new-chat-button,
 .mobile-back-button,
 .send-button,
@@ -710,6 +708,25 @@ body {
     padding: 20px;
 }
 
+.profile-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.profile-actions .modal-button {
+    flex: 1;
+    margin-top: 0;
+}
+
+.chat-header:hover {
+    background: rgba(20, 20, 24, 0.75);
+}
+
+.mobile-back-button {
+    cursor: pointer;
+}
+
 .modal-card {
     width: 100%;
     max-width: 380px;
@@ -798,69 +815,21 @@ body {
     gap: 10px;
 }
 
-.my-id-box {
-    height: 36px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 16px;
-    border-radius: 10px;
-
-    border: 1px solid #24242a;
-    background: #141417;
-    color: #ffffff;
-
-    cursor: pointer;
-    transition: background 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
-}
-
-.my-id-box:hover {
-    background: #1f1f23;
-    border-color: #3a3a42;
-}
-
-.my-id-box:active {
-    transform: scale(0.97);
-}
-
-.my-id-label {
+.date-separator {
+    align-self: center;
+    margin: 14px 0 10px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
     color: #9ca3af;
-    font-size: 13px;
-}
-
-.my-id-value {
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.my-id-box.copied {
-    border-color: rgba(168, 85, 247, 0.65);
-    background: rgba(168, 85, 247, 0.18);
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .chat-preview .prefix {
-    color: #868686;
-    font-weight: 600;
-    margin-right: 2px;
-}
-
-.typing-indicator {
-    position: absolute;
-    top: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(31, 41, 55, 0.9);
-    padding: 6px 16px;
-    border-radius: 20px;
-    backdrop-filter: blur(4px);
-    color: #9ca3af;
-    font-size: 12px;
-    z-index: 100;
-    pointer-events: none; 
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    color: #c4b5fd;
+    font-weight: 700;
+    margin-right: 3px;
 }
 
 .typing-dots span {
@@ -911,6 +880,7 @@ body {
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .chat-header-avatar {
@@ -986,15 +956,6 @@ body {
 
     .header-actions {
         gap: 6px;
-    }
-
-    .my-id-box {
-        height: 34px;
-        padding: 0 10px;
-    }
-
-    .my-id-label {
-        display: none;
     }
 
     .logout-button {
@@ -1201,4 +1162,181 @@ body {
 
 .chat-unread-badge.hidden {
     display: none;
+}
+
+.account-button {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid #24242a;
+    background: #141417;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+}
+
+.account-button:hover {
+    background: #1f1f23;
+    border-color: #3a3a42;
+}
+
+.account-button:active {
+    transform: scale(0.97);
+}
+
+.account-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #5b21b6, #9333ea);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.account-text {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .account-text {
+        display: none;
+    }
+
+    .account-avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    .account-button {
+        padding: 0 8px;
+        border: transparent;
+        background: transparent;
+    }
+
+    .account-button:hover {
+        background: transparent;
+        border-color: transparent;
+    }
+}
+
+.user-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.user-search-item {
+    width: 100%;
+    border: none;
+    background: #0f0f12;
+    border: 1px solid #2f2f36;
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.user-search-item:hover {
+    background: #18181b;
+    border-color: #3a3a42;
+}
+
+.user-search-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #5b21b6, #9333ea);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.user-search-info {
+    min-width: 0;
+}
+
+.user-search-name {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.user-search-email {
+    margin-top: 3px;
+    font-size: 12px;
+    color: #9ca3af;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-search-empty {
+    padding: 14px;
+    color: #9ca3af;
+    font-size: 13px;
+    text-align: center;
+}
+
+.account-profile-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 16px;
+    background: #0f0f12;
+    border: 1px solid #2f2f36;
+    margin-bottom: 14px;
+}
+
+.account-profile-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #5b21b6, #9333ea);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.account-profile-info {
+    min-width: 0;
+}
+
+.account-profile-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-profile-email {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #9ca3af;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

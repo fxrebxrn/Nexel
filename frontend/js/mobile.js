@@ -1,4 +1,3 @@
-// mobile.js
 function isMobileLayout() {
     return window.matchMedia("(max-width: 768px)").matches;
 }
