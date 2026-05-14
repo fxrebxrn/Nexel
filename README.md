@@ -1,80 +1,137 @@
 ![Tests](https://github.com/fxrebxrn/Nexel/actions/workflows/tests.yml/badge.svg)
 ![Docker Build](https://github.com/fxrebxrn/Nexel/actions/workflows/docker.yml/badge.svg)
 
-# Social Platform API (FastAPI)
+# Nexel — Backend API + Frontend Chat MVP
 
-A REST API for a social platform built with **FastAPI**.
+A modern fullstack social network pet-project:
 
-It includes support for:
+- **Backend** built with FastAPI (REST API + WebSocket chat)
+- **Frontend MVP** built with plain HTML/CSS/JS (real-time chat client)
+- **PostgreSQL + Redis**
+- **Docker Compose** for local setup
 
-- registration and authentication (JWT access + refresh);
-- user profiles, roles, and avatars;
-- follow/unfollow relationships;
-- posts, comments (including nested comments), likes, and media attachments;
-- private chats, messages, and message attachments;
-- notifications;
-- Redis caching and login rate limiting.
+---
+
+## What's Implemented
+
+### Backend (API)
+
+- JWT authentication: login + refresh tokens
+- User profiles, roles, avatars
+- Follow/unfollow relationships
+- Posts, likes, comments (including nested comments)
+- Private chats, messages, attachments
+- Notifications
+- Redis caching and rate limiting
+- Real-time chat over WebSocket
+
+### Frontend MVP (Chat)
+
+- Authentication screen (Login / Register)
+- Chat list
+- New chat creation via user search
+- Message history + loading older messages
+- Sending messages with Enter
+- Typing indicator
+- WebSocket status: connected / reconnecting / offline
+- Auto-reconnect for socket
+- Mobile mode (responsive behavior)
+- Account and chat partner profile modals
+
+---
+
+## Project Architecture
+
+```text
+Nexel/
+├── backend/
+│   ├── main.py
+│   ├── routers/
+│   ├── services/
+│   ├── schemas/
+│   ├── core/
+│   ├── utils/
+│   ├── tests/
+│   ├── alembic/
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/
+│   ├── index.html
+│   ├── style.css
+│   └── js/
+│       ├── main.js
+│       ├── api.js
+│       ├── auth.js
+│       ├── chats.js
+│       ├── messages.js
+│       ├── socket.js
+│       └── ...
+├── docker-compose.yml
+└── README.md
+```
 
 ---
 
 ## Tech Stack
 
-- **Python / FastAPI**
-- **SQLAlchemy (async)**
-- **Alembic**
-- **PostgreSQL** (via `DATABASE_URL`)
-- **Redis**
-- **JWT** (`python-jose`)
-- **Pydantic Settings**
+### Backend
+
+- Python, FastAPI
+- SQLAlchemy (async)
+- Alembic
+- PostgreSQL
+- Redis
+- python-jose (JWT)
+- Pydantic Settings
+
+### Frontend
+
+- HTML5
+- CSS3
+- Vanilla JavaScript (ES modules)
+- WebSocket API
 
 ---
 
-## Project Structure
-
-- `main.py` — FastAPI app entry point, router registration, global exception handlers.
-- `routers/` — API endpoints by domain:
-  - `auth.py`
-  - `users.py`
-  - `posts.py`
-  - `chats.py`
-  - `notifications.py`
-- `models.py` — SQLAlchemy models.
-- `core/` — database, security, exceptions, Redis client.
-- `schemas/` — Pydantic request/response schemas.
-- `services/` — business logic layer (e.g., post-related logic).
-- `utils/` — helper utilities.
-- `alembic/` — migrations.
-- `tests/` — API tests.
-
----
-
-## Quick Start
+## Quick Start (Docker, Recommended)
 
 ### 1) Clone the repository
 
 ```bash
 git clone <your-repo-url>
-cd social-platform-fastapi-backend
+cd Nexel
 ```
 
-### 2) Create and activate a virtual environment
+### 2) Run the full project
 
 ```bash
+docker compose up --build
+```
+
+After startup:
+
+- Backend API: `http://localhost:8000`
+- Swagger: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+- PostgreSQL: `localhost:5434`
+- Redis: `localhost:6379`
+
+> Note: the frontend can be opened as static files separately, or served through your preferred static server/reverse proxy.
+
+---
+
+## Local Setup Without Docker
+
+## Backend
+
+```bash
+cd backend
 python -m venv .venv
 source .venv/bin/activate
-```
-
-### 3) Install dependencies
-
-Use pinned dependencies from `requirements.txt`:
-
-```bash
 pip install -r requirements.txt
 ```
 
-### 4) Environment variables
-
-Create a `.env` file in the project root:
+Create a `.env` file in `backend/` (example):
 
 ```env
 SECRET_KEY=change_me
@@ -91,58 +148,60 @@ REDIS_HOST=localhost
 REDIS_PORT=6379
 ```
 
-### 5) Run migrations
+Run migrations and start the server:
 
 ```bash
 alembic upgrade head
-```
-
-### 6) Start the API
-
-```bash
 uvicorn main:app --reload
 ```
 
-After startup:
+## Frontend MVP
 
-- Swagger UI: `http://127.0.0.1:8000/docs`
-- ReDoc: `http://127.0.0.1:8000/redoc`
+Option 1 (open directly):
+
+- open `frontend/index.html` in your browser
+
+Option 2 (run local static server):
+
+```bash
+cd frontend
+python -m http.server 3000
+```
+
+Then open:
+
+- `http://localhost:3000`
 
 ---
 
-## Docker
+## Frontend Config
 
-Run the project with Docker Compose:
+File: `frontend/js/config.js`
 
-```bash
-docker compose up --build
-```
+- For local frontend development (ports `3000` and `5173`), backend host is hardcoded as `192.168.0.100:8000`.
+- For all other cases, it uses `window.location.origin` and matching `ws/wss` protocol.
 
-The app will automatically:
-- start PostgreSQL
-- start Redis
-- run Alembic migrations
-- start FastAPI
+If your backend is running on another host/IP, update `API_URL` and `WS_URL` for your environment.
 
-Sevices:
-- FastAPI: http://localhost:8000
-- Open API docs: http://localhost:8000/docs
-- PostgreSQL: localhost:5434
-- Redis: localhost:6379
+---
 
 ## Authentication
 
-JWT is used for auth:
+JWT is used:
 
-- `POST /auth/login` returns:
-  - `access_token`
-  - `refresh_token`
-- `POST /auth/refresh` issues a new `access_token` from a `refresh_token`.
+- `POST /auth/login` → `access_token`, `refresh_token`
+- `POST /auth/refresh` → new `access_token`
 
-For protected endpoints, pass the header:
+For protected endpoints:
 
 ```http
 Authorization: Bearer <access_token>
+```
+
+WebSocket chat also connects with token:
+
+```text
+/ws/chats/{chat_id}/ws?token=<access_token>
 ```
 
 ---
@@ -150,116 +209,84 @@ Authorization: Bearer <access_token>
 ## Main Endpoint Groups
 
 ### Auth (`/auth`)
-
-- `POST /register` — register user.
-- `POST /login` — login.
-- `POST /refresh` — refresh access token.
+- `POST /register`
+- `POST /login`
+- `POST /refresh`
 
 ### Users (`/users`)
-
-- `GET /me/profile` — my profile.
-- `GET /{user_id}/profile` — user profile.
-- `GET /search/{name}` — search users.
-- `POST /{user_id}/follow` / `DELETE /{user_id}/follow` — follow/unfollow.
-- `GET /{user_id}/followers` and `GET /{user_id}/following`.
-- `PATCH /me/avatar` / `DELETE /me/avatar` — avatar management.
-- `PUT /{user_id}` — update user (admin only).
-- `PATCH /{user_id}/role` — change user role (admin only).
+- `GET /me/profile`
+- `GET /{user_id}/profile`
+- `GET /search/{name}`
+- `POST /{user_id}/follow`, `DELETE /{user_id}/follow`
+- `GET /{user_id}/followers`, `GET /{user_id}/following`
+- `PATCH /me/avatar`, `DELETE /me/avatar`
+- `PUT /{user_id}` (admin)
+- `PATCH /{user_id}/role` (admin)
 
 ### Posts (`/posts`)
-
-- `POST /` — create post.
-- `DELETE /{post_id}` / `PUT /{post_id}` — delete/update post.
-- `GET /my`, `GET /user/{user_id}` — post lists.
-- `GET /feed` — subscription-based feed.
-- `POST /{post_id}/comments` — add comment.
-- `GET /{post_id}/comments` — list comments.
-- `POST /{post_id}/like`, `DELETE /{post_id}/like` — like/unlike.
-- `GET /{post_id}/likes/count`, `GET /{post_id}/like-status`.
-- `POST /{post_id}/attachments` — upload attachments (up to 5).
-- `DELETE /attachments/{attachment_id}` — remove attachment.
+- Post CRUD
+- Comments and likes
+- Post attachments
+- Subscription feed
 
 ### Chats (`/chats`)
-
-- `POST /{user_id}` — create chat with user.
-- `GET /` — list user chats.
-- `GET /{chat_id}/messages` — list chat messages.
-- `POST /{chat_id}/messages` — send message.
-- `PATCH /{chat_id}/read` — mark incoming messages as read.
-- `GET /{chat_id}/unread-count` — unread message count.
-- `POST /{message_id}/attachments` — upload message attachments.
-- `DELETE /attachments/{attachment_id}` — remove attachment.
+- Create chat
+- Chat list
+- Message history
+- Send messages
+- Mark as read
+- Unread count
+- Message attachments
+- WebSocket realtime events
 
 ### Notifications (`/notifications`)
-
-- `GET /` — my notifications.
-- `GET /unread-count` — unread notifications count.
-- `PATCH /{notification_id}/read` — mark a notification as read.
-- `PATCH /read-all` — mark all notifications as read.
+- Notifications list
+- Unread count
+- Mark-as-read / mark-all-read
 
 ---
 
-### Realtime chat
+## Realtime Chat Events (MVP)
 
-- Message history via HTTP cursor pagination
-- New messages delivered via WebSocket
-- JWT-protected WebSocket connection
-- Chat participant validation
-- Typing events
+Client handles:
 
----
+- `message` / `new_message`
+- `typing`
 
-## Media Files
+Behavior:
 
-The app serves the `media` directory at:
-
-- `/media/...`
-
-Examples:
-
-- avatars: `media/avatars/...`
-- post attachments: `media/post_attachments/...`
-- message attachments: `media/message_attachments/...`
+- Auto-updating chat preview
+- Appending new message to active conversation
+- Increasing unread badge in inactive chats
+- Auto mark-as-read for incoming messages in active chat
+- Fallback reload if websocket message is not received in time
 
 ---
 
-## Caching and Limits
+## Tests
 
-- Redis is used to cache frequently requested data (profiles, feeds, notifications, chats, etc.).
-- Related cache keys are invalidated when data changes.
-- Login (`/auth/login`) has rate limiting by IP and email for failed attempts.
-
----
-
-## Roles
-
-Supported roles:
-
-- `user`
-- `admin`
-- `moderator`
-- `helper`
-
-Some endpoints are restricted to `admin`.
-
----
-
-## Testing
-
-Run tests with:
+Run backend tests:
 
 ```bash
+cd backend
 pytest
 ```
 
-Tests use in-memory SQLite and Redis mocks.
+The repository also has GitHub Actions badges for CI.
 
 ---
 
-## AI help
+## Roadmap (Possible Next Improvements)
 
-- Documentation
-- Mentor/Teacher
-- Tests
+- Full profile pages on frontend
+- Upload/view attachments in MVP chat
+- Presence (online/last seen)
+- Push/Web notifications
+- Frontend E2E tests
+- Nginx config for single domain (API + static frontend)
 
 ---
+
+## License
+
+This project is distributed under the license specified in the `LICENSE` file.
