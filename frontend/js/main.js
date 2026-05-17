@@ -289,11 +289,14 @@ async function initApp() {
     const savedToken = localStorage.getItem("access_token");
 
     if (savedToken) {
-        await loadCurrentUser();
+        const user = await loadCurrentUser();
+        if (!user) {
+            showAuthScreen();
+            return;
+        }
+
         await loadChats();
-
         showChatApp();
-
         await openSavedOrFirstChatOnlyDesktop();
     } else {
         showAuthScreen();

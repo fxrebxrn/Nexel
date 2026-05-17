@@ -226,7 +226,6 @@ function renderChats(chats) {
     if (!chats || chats.length === 0) {
         chatListElement.innerHTML = `
             <div class="empty-chats">
-                <div class="empty-icon">💬</div>
                 <p>No conversations yet</p>
                 <span>Your messages will appear here</span>
             </div>

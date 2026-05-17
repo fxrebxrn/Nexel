@@ -1,3 +1,5 @@
+let isPageClosing = false;
+
 function setSocketStatus(status) {
     if (!chatHeaderStatus) {
         return;
@@ -92,6 +94,10 @@ function closeChatSocket(allowReconnect = false) {
 }
 
 async function reconnectChatSocket(chatId) {
+    if (isPageClosing) {
+        return;
+    }
+
     if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
         console.warn("Max WebSocket reconnect attempts reached");
         setSocketStatus("offline");
@@ -106,7 +112,7 @@ async function reconnectChatSocket(chatId) {
     showToast("Reconnecting...", "warning");
 
     reconnectTimeout = setTimeout(async () => {
-        if (!currentChatId || Number(chatId) !== Number(currentChatId)) {
+        if (isPageClosing || !currentChatId || Number(chatId) !== Number(currentChatId)) {
             return;
         }
 
@@ -187,6 +193,9 @@ function connectChatSocket(chatId) {
     };
 
     chatSocket.onclose = async () => {
+        if (isPageClosing) {
+            return;
+        }
 
         if (!shouldReconnectSocket) {
             setSocketStatus("offline");
@@ -205,3 +214,8 @@ function connectChatSocket(chatId) {
         console.error("WebSocket error:", error);
     };
 }
+
+window.addEventListener("beforeunload", () => {
+    isPageClosing = true;
+    closeChatSocket(false);
+});

@@ -56,6 +56,7 @@ async function refreshAccessToken() {
         const data = await response.json();
 
         if (!response.ok) {
+            logoutUser();
             return false;
         }
 

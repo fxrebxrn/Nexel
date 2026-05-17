@@ -35,15 +35,7 @@ function logoutUser() {
     showAuthScreen();
 }
 
-async function login() {
-    const email = loginEmailInput.value;
-    const password = loginPasswordInput.value;
-
-    if (!email || !password) {
-        setAuthStatus("Enter your email and password");
-        return;
-    }
-
+async function loginLogic(email, password) {
     try {
         const formData = new URLSearchParams();
 
@@ -82,15 +74,25 @@ async function login() {
         setAuthStatus("");
         await loadCurrentUser();
         await loadChats();
-
         showChatApp();
-
         await openSavedOrFirstChatOnlyDesktop();
 
     } catch (error) {
         console.error("Login error:", error);
         setAuthStatus("Failed to connect to the server");
     }
+}
+
+async function login() {
+    const email = loginEmailInput.value;
+    const password = loginPasswordInput.value;
+
+    if (!email || !password) {
+        setAuthStatus("Enter your email and password");
+        return;
+    }
+
+    loginLogic(email, password);
 }
 
 async function register() {
@@ -123,13 +125,7 @@ async function register() {
             return;
         }
 
-        setAuthStatus("Registration successful, now login please");
-
-        registerNameInput.value = "";
-        registerEmailInput.value = "";
-        registerPasswordInput.value = "";
-
-        showLoginForm();
+        loginLogic(email, password);
 
     } catch (error) {
         console.error("Register error:", error);
